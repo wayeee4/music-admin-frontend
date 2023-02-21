@@ -64,6 +64,7 @@
 import {computed, reactive, ref, toRaw} from "vue";
 import userApi from '@/api/user'
 import router from "@/router/index.js";
+import {useUserStore} from "@/store/user.js";
 
 const loginForm = reactive({
   username: '',
@@ -94,9 +95,13 @@ const handleLoginClick = async (e) => {
 
 async function login(postForm) {
   const res = await userApi.login(postForm)
+  const userStore = useUserStore()
   const {user, token} = res
+  userStore.$patch({
+    userInfo: user
+  })
   localStorage.setItem('music-access-token', token)
-  await router.push({path: '/home'})
+  router.push({name: 'home'})
   $message.success(`欢迎回来`)
 }
 
