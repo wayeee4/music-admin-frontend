@@ -1,11 +1,14 @@
 <script setup>
-import { darkTheme } from 'naive-ui'
-import Layout from '@/components/layout/Layout.vue'
+import {darkTheme} from 'naive-ui'
 </script>
 
 <template>
   <n-config-provider :theme="darkTheme">
-    <Layout><router-view /></Layout>
+    <n-message-provider placement="top-right">
+      <Content>
+        <router-view/>
+      </Content>
+    </n-message-provider>
   </n-config-provider>
 </template>
 
