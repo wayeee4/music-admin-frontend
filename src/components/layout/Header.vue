@@ -1,5 +1,5 @@
 <template>
-  <n-layout-header bordered >
+  <n-layout-header bordered>
     <div></div>
     <n-dropdown :options="options" >
       <n-button text class="btn-avatar"><n-avatar
@@ -47,8 +47,10 @@ const options = [
 
 <style scoped>
 .n-layout-header{
-  padding: 10px 24px!important;
-  min-height: 60px;
+  padding: 0 24px!important;
+  height:var(--layout-header-height);
+  min-height: var(--layout-header-height);
+  max-height: var(--layout-header-height);
   display: flex;
   align-items: center;
   justify-content: space-between;

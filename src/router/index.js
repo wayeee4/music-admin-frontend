@@ -4,20 +4,20 @@ const routes = [
 
     {path: '/login', name: 'login', component: () => import('@/views/Login.vue')},
     {
-        name: 'Layout', component: () => import('@/components/layout/Layout.vue'),
+        path:'/',name: 'Layout', component: () => import('@/components/layout/Layout.vue'),
         children: [
-            {path: '/', component: () => import('@/views/Home.vue'), name: 'home'},
-            {path: '/home', redirect: {name: 'home'}},
+            {path: '', component: () => import('@/views/Home.vue'), name: 'home'},
+            {path: 'home', redirect: {name: 'home'}},
             {
-                path: '/song', name: 'song', children: [{
-                    path: '/manage', name: 'songManage', component: () => import('@/views/song/SongManage.vue'),
+                path: 'song', name: 'song', children: [{
+                    path: 'manage', name: 'songManage', component: () => import('@/views/song/SongManage.vue'),
                 }]
             },
             {
-                path: '/album',
+                path: 'album',
                 name: "album",
                 children: [{
-                    path: '/manage',
+                    path: 'manage',
                     name: 'albumManage',
                     component: () => import('@/views/album/AlbumManage.vue')
                 }]

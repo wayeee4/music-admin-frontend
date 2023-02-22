@@ -3,9 +3,11 @@
     <Aside/>
     <n-layout>
       <Header/>
+      <n-scrollbar style="max-height: calc(100vh - 70px)">
       <n-layout-content   content-style="padding: 24px;">
-        <slot></slot>
+          <router-view />
       </n-layout-content>
+      </n-scrollbar>
     </n-layout>
   </n-layout>
 </template>
@@ -26,6 +28,7 @@
 }
 
 .n-layout-content {
+  min-height: calc(100vh - var(--layout-header-height));
   background: rgba(128, 128, 128, 0.4);
 }
 </style>

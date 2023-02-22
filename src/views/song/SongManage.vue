@@ -11,7 +11,7 @@
     </n-space>
     </div>
    <div class="table-header-right-wrap">
-     <n-input placeholder="搜索">
+     <n-input clearable placeholder="搜索">
        <template #prefix>
          <n-icon :component="FlashOutline" />
        </template>
@@ -20,57 +20,130 @@
   </div>
   <div class="table-body">
     <n-data-table
-        :columns="columns"
-        :data="data"
-        :pagination="pagination"
-        :row-key="rowKey"
-        @update:checked-row-keys="handleCheck"
+        :columns="table.columns"
+        :data="table.data"
+        :pagination="table.pagination"
+        :row-key="table.rowKey"
+        @update:checked-row-keys="table.handleCheck"
+        :row-props="table.rowProps"
+        max-height="70vh"
+    />
+    <n-dropdown
+        placement="bottom-start"
+        trigger="manual"
+        :x="actions.x"
+        :y="actions.y"
+        :options="actions.options"
+        :show="actions.show"
+        :on-clickoutside="actions.onClickoutside"
+        @select="actions.handleSelect"
     />
   </div>
 </template>
 
 <script setup>
 import { FlashOutline } from '@vicons/ionicons5'
-import { ref } from 'vue'
+import { h, nextTick, reactive, ref } from 'vue'
+import { NButton } from 'naive-ui'
 const createColumns = () => [
   {
     type: "selection",
     disabled(row) {
-      return row.name === "Edward King 3";
+      // return row.name === "Edward King 3";
     }
   },
   {
-    title: "Name",
+    title: "名称",
     key: "name"
   },
   {
-    title: "Age",
+    title: "封面",
     key: "age"
   },
   {
-    title: "Address",
+    title: "创作者",
     key: "address"
-  }
+  },{
+    title: "所属专辑",
+    key: "address"
+  },
+  {
+    title: "时长",
+    key: "address"
+  },
+  {
+    title: "状态",
+    key: "address"
+  },
 ];
-const columns = createColumns()
-const panigation = {
-  pageSize:5
-}
-const rowKey = (row)=>row.address
-const handleCheck = (rowKeys)=>{
-  checkedRowKeysRef.value = rowKeys
-}
-const data = Array.from({ length: 46 }).map((_, index) => ({
-  name: `Edward King ${index}`,
-  age: 32,
-  address: `London, Park Lane no. ${index}`
-}));
-const checkedRowKeysRef = ref([]);
+
+const table = reactive({
+  columns:createColumns(),
+  pagination:{
+    page: 1,
+    pageSize: $config.pageSize,
+    showSizePicker: true,
+    pageSizes: $config.pageSizes,
+    onChange: (page) => {
+      table.pagination.page = page;
+    },
+    onUpdatePageSize: (pageSize) => {
+      table.pagination.pageSize = pageSize;
+      table.pagination.page = 1;
+    }
+  },
+  rowKey:(row)=>row.address,
+  handleCheck:(rowKeys)=>{
+    table.checkedRowKeysRef = rowKeys
+  },
+  checkedRowKeysRef:null,
+  data:Array.from({ length: 46 }).map((_, index) => ({
+    name: `Edward King ${index}`,
+    age: 32,
+    address: `London, Park Lane no. ${index}`
+  })),
+  rowProps: (row) => {
+    return {
+      onContextmenu: (e) => {
+        e.preventDefault();
+        actions.show = false;
+        nextTick().then(() => {
+          actions.show = true;
+          actions.x = e.clientX;
+          actions.y = e.clientY;
+        });
+      }
+    };
+  }
+})
+
+const actions = reactive({
+  options : [
+    {
+      label: "编辑",
+      key: "edit"
+    },
+    {
+      label: () => h("span", { style: { color: "red" } }, "删除"),
+      key: "delete"
+    }
+  ],
+  show:false,
+  x:0,
+  y:0,
+  onClickoutside:()=>{
+    actions.show = false
+  },
+  handleSelect:()=>{
+    actions.show = false
+  }
+})
 </script>
 
 <style scoped>
 .table-header{
   display: flex;
   justify-content: space-between;
+  padding-bottom: 20px;
 }
 </style>
