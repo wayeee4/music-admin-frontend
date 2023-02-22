@@ -3,10 +3,10 @@
     <Aside/>
     <n-layout>
       <Header/>
-      <n-scrollbar style="max-height: calc(100vh - 70px)">
-      <n-layout-content   content-style="padding: 24px;">
-          <router-view />
-      </n-layout-content>
+      <n-scrollbar style="max-height: calc(100vh - var(--layout-header-height))">
+        <n-layout-content content-style="padding: 24px;">
+          <router-view/>
+        </n-layout-content>
       </n-scrollbar>
     </n-layout>
   </n-layout>

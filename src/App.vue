@@ -1,7 +1,6 @@
 <script setup>
 import {darkTheme} from 'naive-ui'
 import config from '@/config/index.js'
-
 window.$config = config
 </script>
 

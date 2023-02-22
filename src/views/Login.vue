@@ -1,6 +1,7 @@
 <template>
   <n-layout>
-    <n-layout-content content-style="padding: 24px;min-height:100vh;max-height:100vh;">
+    <n-layout-content content-style="padding: 24px;min-height:100vh;max-height:100vh;  display: flex;justify-content: center;
+align-items: center;">
       <n-card hoverable>
         <n-tabs
             class="card-tabs"
@@ -63,9 +64,10 @@
 <script setup>
 import {computed, reactive, ref, toRaw} from "vue";
 import userApi from '@/api/user'
-import router from "@/router/index.js";
 import {useUserStore} from "@/store/user.js";
+import {useRouter} from "vue-router";
 
+const router = useRouter()
 const loginForm = reactive({
   username: '',
   password: ''
@@ -101,6 +103,8 @@ async function login(postForm) {
     userInfo: user
   })
   localStorage.setItem('music-access-token', token)
+  console.log(userStore.userInfo)
+  console.log(localStorage.getItem('music-access-token'))
   router.push({name: 'home'})
   $message.success(`欢迎回来`)
 }
@@ -167,13 +171,7 @@ const emailOptions = computed(() => {
 })
 </script>
 
-<style>
-.n-layout .n-layout-scroll-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
+<style scoped>
 @media screen and (min-width: 960px) {
   .n-card {
     width: 50%;
@@ -185,5 +183,4 @@ const emailOptions = computed(() => {
     width: 30%;
   }
 }
-
 </style>

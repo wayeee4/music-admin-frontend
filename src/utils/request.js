@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const instance = axios.create({
-    baseURL: 'api',
+    baseURL: '/api',
     timeout: 5000
 })
 // 请求拦截器
@@ -25,11 +25,23 @@ instance.interceptors.response.use(res => {
     const data = res.data
     if (data.code !== 0) {
         $message.error(data.msg)
-        return null
+        return Promise.reject(data)
     }
     return data.data
 }, err => {
     // !== 200
     return Promise.reject(err)
 })
-export default instance
+
+function request(options) {
+    if (options.method.toLowerCase() == 'get') {
+        const data = options.data
+        delete options.data
+        options.params = data
+        return instance(options)
+    } else {
+        return instance(options)
+    }
+}
+
+export default request

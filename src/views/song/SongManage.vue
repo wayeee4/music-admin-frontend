@@ -1,26 +1,28 @@
 <template>
   <div class="table-header">
     <div class="table-header-left-wrap">
-    <n-space>
-      <n-button  secondary type="primary">
-        添加歌曲
-      </n-button>
-      <n-button secondary type="warning">
-        批量删除
-      </n-button>
-    </n-space>
+      <n-space>
+        <n-button secondary type="primary">
+          添加歌曲
+        </n-button>
+        <n-button secondary type="warning">
+          批量删除
+        </n-button>
+      </n-space>
     </div>
-   <div class="table-header-right-wrap">
-     <n-input clearable placeholder="搜索">
-       <template #prefix>
-         <n-icon :component="FlashOutline" />
-       </template>
-     </n-input>
-   </div>
+    <div class="table-header-right-wrap">
+      <n-input v-model:value="table.keyword" @blur="table.handleSearch" clearable placeholder="搜索">
+        <template #prefix>
+          <n-icon :component="FlashOutline"/>
+        </template>
+      </n-input>
+    </div>
   </div>
   <div class="table-body">
     <n-data-table
+        remote
         :columns="table.columns"
+        :loading="table.loading"
         :data="table.data"
         :pagination="table.pagination"
         :row-key="table.rowKey"
@@ -42,9 +44,11 @@
 </template>
 
 <script setup>
-import { FlashOutline } from '@vicons/ionicons5'
-import { h, nextTick, reactive, ref } from 'vue'
-import { NButton } from 'naive-ui'
+import {FlashOutline} from '@vicons/ionicons5'
+import {h, nextTick, onMounted, reactive, ref} from 'vue'
+import {NButton, NImage, NSwitch} from 'naive-ui'
+import songApi from '@/api/song'
+
 const createColumns = () => [
   {
     type: "selection",
@@ -53,33 +57,73 @@ const createColumns = () => [
     }
   },
   {
-    title: "名称",
+    title: "歌曲名",
     key: "name"
   },
   {
     title: "封面",
-    key: "age"
+    key: "pic",
+    render(row) {
+      return h(
+          NImage,
+          {
+            src: row.pic,
+            width: 80
+          },
+          null
+      )
+    }
   },
   {
     title: "创作者",
-    key: "address"
-  },{
+    key: "artist_name"
+  },
+  {
     title: "所属专辑",
-    key: "address"
+    key: "album_name"
   },
   {
     title: "时长",
-    key: "address"
+    key: "duration",
+    render(row) {
+      const duration = row.duration
+      const m = parseInt(duration / 60)
+      const s = duration % 60
+      return `${m} : ${s}`;
+    }
   },
   {
-    title: "状态",
-    key: "address"
+    title: "上下架",
+    key: "status",
+    render(row) {
+      return h(NSwitch, {
+        value: !!row.status,
+        onUpdateValue: async (value) => {
+          const status = value ? 1 : 0
+          await updateStatus([row.id], status)
+          row.status = status
+        }
+      }, null)
+    }
   },
+  {
+    title: "原创",
+    key: "is_original",
+    render(row) {
+      return row.is_original ? '是' : '否';
+    }
+  },
+  {
+    title: '最近更新时间',
+    key: 'update_time',
+  }
 ];
 
 const table = reactive({
-  columns:createColumns(),
-  pagination:{
+  columns: createColumns(),
+  keyword: '',
+  loading: true,
+  pagination: {
     page: 1,
     pageSize: $config.pageSize,
     showSizePicker: true,
@@ -92,16 +136,15 @@ const table = reactive({
       table.pagination.page = 1;
     }
   },
-  rowKey:(row)=>row.address,
-  handleCheck:(rowKeys)=>{
-    table.checkedRowKeysRef = rowKeys
+  rowKey: (row) => row.name,
+  handleCheck: (rowKeys) => {
+    table.checkedRowKeys = rowKeys
   },
-  checkedRowKeysRef:null,
-  data:Array.from({ length: 46 }).map((_, index) => ({
-    name: `Edward King ${index}`,
-    age: 32,
-    address: `London, Park Lane no. ${index}`
-  })),
+  handleSearch: () => {
+    queryAndSet(table.pagination.page, table.pagination.pageSize, table.keyword)
+  },
+  checkedRowKeys: null,
+  data: [],
   rowProps: (row) => {
     return {
       onContextmenu: (e) => {
@@ -118,30 +161,44 @@ const table = reactive({
 })
 
 const actions = reactive({
-  options : [
+  options: [
     {
       label: "编辑",
       key: "edit"
     },
     {
-      label: () => h("span", { style: { color: "red" } }, "删除"),
+      label: () => h("span", {style: {color: "red"}}, "删除"),
       key: "delete"
     }
   ],
-  show:false,
-  x:0,
-  y:0,
-  onClickoutside:()=>{
+  show: false,
+  x: 0,
+  y: 0,
+  onClickoutside: () => {
     actions.show = false
   },
-  handleSelect:()=>{
+  handleSelect: () => {
     actions.show = false
   }
 })
+
+onMounted(() => {
+  queryAndSet(table.pagination.page, table.pagination.pageSize, table.keyword)
+})
+const queryAndSet = async (pageNum, pageSize, keyword) => {
+  const res = await songApi.getList({page_num: pageNum, page_size: pageSize, keyword})
+  table.pagination.itemCount = res.total
+  table.data = res.songs
+  table.loading = false
+}
+const updateStatus = async (ids, status) => {
+  const res = await songApi.updateStatus({ids, status})
+  return true
+}
 </script>
 
 <style scoped>
-.table-header{
+.table-header {
   display: flex;
   justify-content: space-between;
   padding-bottom: 20px;
